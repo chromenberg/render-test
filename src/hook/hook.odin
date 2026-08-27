@@ -1,7 +1,8 @@
 package hook
 import "core:fmt"
+import "core:thread"
 import "base:runtime"
-
+import "core:nbio"
 NO_NAME :: "NoNameAssigned"
 
 HookCallback :: #type proc(args: ..any)
@@ -62,6 +63,7 @@ remove_hook :: proc(
 }
 
 run_hooks :: proc(self: ^HookStore, args: ..any) {
+  thread.
   for hook in self.hooks {
     hook.callback(..args) // Call the hook callback
 
