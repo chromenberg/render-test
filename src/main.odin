@@ -1,6 +1,5 @@
 package main
 import "renderer"
-import "core:thread"
 import "core:fmt"
 import "hook"
 
@@ -9,6 +8,8 @@ temp :: proc(args: ..any) {
 }
 
 main :: proc() {
- thread.Thread{}
+  renderer.init_hooks()
+  
+  renderer.add_pre_draw_hook()
   renderer.init_renderer(640, 480, "shite")
 }
