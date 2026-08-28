@@ -1,8 +1,7 @@
 package hook
 import "core:fmt"
-import "core:thread"
 import "base:runtime"
-import "core:nbio"
+
 NO_NAME :: "NoNameAssigned"
 
 HookCallback :: #type proc(args: ..any)
@@ -11,7 +10,8 @@ Hook :: struct {
   callback: HookCallback,
   once: bool,
   // A name of the hook, helps to state what the hook is for
-  name: Maybe(string)
+  name: Maybe(string),
+  imports: []any // data that is needed from outside the anonymous context
 }
 
 HookStore :: struct {
@@ -25,13 +25,15 @@ HookFailedToAppendError :: proc() {
 create_hook :: proc(
   callback: HookCallback,
   once: bool,
-  name: Maybe(string)
+  name: Maybe(string),
+  imports: ..any
 ) -> ^Hook {
   hook := new(Hook)
   
   hook.callback = callback
   hook.once = once
   hook.name = name
+  hook.imports = imports
   
   return hook
 }
@@ -54,7 +56,7 @@ remove_hook :: proc(
   hook: ^Hook
 ) {
   // iterate through all the hooks and find the hook with the same pointer as `hook`
-  for i := 0; i < len(self.hooks); {
+  for i := 0; i <= len(self.hooks); i += 1 {
     if self.hooks[i] == hook {
       unordered_remove(&self.hooks, i)
       fmt.println("removed pointer ", hook, " from the hook store")
@@ -63,7 +65,6 @@ remove_hook :: proc(
 }
 
 run_hooks :: proc(self: ^HookStore, args: ..any) {
-  thread.
   for hook in self.hooks {
     hook.callback(..args) // Call the hook callback
 
